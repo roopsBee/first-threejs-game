@@ -1,24 +1,33 @@
-import * as THREE from "three"
 import React, { useRef, useState } from "react"
-import { useFrame, ThreeElements } from "@react-three/fiber"
+import { ThreeElements } from "@react-three/fiber"
+import { PlaneProps, useBox, usePlane } from "@react-three/cannon"
+import { Mesh } from "three"
 
 function Box(props: ThreeElements["mesh"]) {
-  const mesh = useRef<THREE.Mesh>(null!)
-  const [hovered, setHover] = useState(false)
-  const [active, setActive] = useState(false)
-  useFrame((state, delta) => (mesh.current.rotation.x += 0.01))
-
+  const [ref, api] = useBox(
+    () => ({ mass: 1, position: [0, 0, 0] }),
+    useRef<Mesh>(null)
+  )
   return (
-    <mesh
-      {...props}
-      ref={mesh}
-      scale={active ? 1.5 : 1}
-      onClick={(event) => setActive(!active)}
-      onPointerOver={(event) => setHover(true)}
-      onPointerOut={(event) => setHover(false)}
-    >
+    <mesh ref={ref} position={[0, 5, 0]}>
       <boxGeometry args={[1, 1, 1]} />
-      <meshStandardMaterial color={hovered ? "hotpink" : "orange"} />
+      <meshStandardMaterial color={"red"} />
+    </mesh>
+  )
+}
+function Plane(props: PlaneProps) {
+  const [ref] = usePlane(
+    () => ({
+      rotation: [-Math.PI / 2, 0, 0],
+      position: [0, -2, 0],
+      ...props
+    }),
+    useRef<Mesh>(null)
+  )
+  return (
+    <mesh ref={ref} position={[0, -10, 0]}>
+      <planeGeometry args={[100, 100]} />
+      <meshStandardMaterial color={"blue"} />
     </mesh>
   )
 }
@@ -27,12 +36,8 @@ const Scene = () => {
     <>
       <ambientLight />
       <pointLight position={[10, 10, 10]} />
-      <Box position={[-1.2, 0, 0]} />
-      <Box position={[1.2, 0, 0]} />
-      <mesh position={[0, -1, 0]}>
-        <boxGeometry args={[10, 1, 10]} />
-        <meshStandardMaterial color={"yellow"} />
-      </mesh>
+      <Box position={[0, 0, 0]} />
+      <Plane />
     </>
   )
 }
